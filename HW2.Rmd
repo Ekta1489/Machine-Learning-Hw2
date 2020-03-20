@@ -1,0 +1,57 @@
+---
+title: "HW2"
+author: "Ekta Chaudhary"
+date: "20/03/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(message = F)
+```
+
+```{r}
+library(tidyverse)
+library(caret)
+library(ModelMetrics)
+library(glmnet)
+library(gam)
+library(boot)
+library(mgcv)
+library(splines)
+library(ggplot2)
+library(lasso2)
+```
+
+Reading the Datasets 
+
+```{r}
+data = 
+  read_csv('./data/College.csv') %>%
+select(-College)
+train =
+  data[-125,]
+test =
+  data[125,]
+```
+
+```{r}
+x <- model.matrix(Outstate~.,train)[,-1]
+y <- train$Outstate
+```
+
+#(a) Create scatter plots of response vs. predictors.
+
+```{r, fig.height=4}
+theme1 <- trellis.par.get()
+theme1$plot.symbol$col <- rgb(.3, .5, .2, .5)
+theme1$plot.symbol$pch <- 18
+theme1$plot.line$col <- rgb(.8, .1, .1, 1)
+theme1$plot.line$lwd <- 2
+theme1$strip.background$col <- rgb(.0, .2, .6, .2)
+trellis.par.set(theme1)
+featurePlot(x, y, plot = "scatter", labels = c("","Y"),
+            type = c("p"), layout = c(4, 2))
+```
+
