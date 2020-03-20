@@ -41,7 +41,7 @@ x <- model.matrix(Outstate~.,train)[,-1]
 y <- train$Outstate
 ```
 
-#(a) Create scatter plots of response vs. predictors.
+(a) Create scatter plots of response vs. predictors.
 
 ```{r, fig.height=4}
 theme1 <- trellis.par.get()
@@ -55,3 +55,44 @@ featurePlot(x, y, plot = "scatter", labels = c("","Y"),
             type = c("p"), layout = c(4, 2))
 ```
 
+We will now fit univariate nonlinear models and GAM to investage the association between `Outstate` and `Terminal`.
+The function `poly()` returns a matrix whose columns are a basis of orthogonal polynomials, which essentially means that each column is a linear combination of `Terminal`, `Terminal^2`, `Terminal^3`, and `Terminal^4`.
+
+```{r}
+fit1 <- lm(Outstate~Terminal, data = train)
+fit2 <- lm(Outstate~poly(Terminal,2), data = train) 
+fit3 <- lm(Outstate~poly(Terminal,3), data = train)
+fit4 <- lm(Outstate~poly(Terminal,4), data = train) 
+fit5 <- lm(Outstate~poly(Terminal,5), data = train)
+```
+
+Using `anova()` to test the null hypothesis that a simpler model is sufficient to explain the data against the alternative hypothesis that a more complex model is required. In order to use ANOVA, the models must be nested.
+
+```{r}
+anova(fit1,fit2,fit3,fit4,fit5)
+```
+
+b) Fit a smoothing spline model using Terminal as the only predictor of Outstate for a range of degrees of freedom, as well as the degree of freedom obtained by generalized cross- validation, and plot the resulting fits. Describe the results obtained.
+
+
+```{r}
+
+Terminallims <- range(train$Terminal)
+Terminal.grid <- seq(from = Terminallims[1],to = Terminallims[2])
+
+fit.ss <- smooth.spline(train$Terminal, train$Outstate)
+fit.ss$df
+
+pred.ss <- predict(fit.ss,
+                   x = Terminal.grid)
+
+pred.ss.df <- data.frame(pred = pred.ss$y,
+                         Terminal = Terminal.grid)
+
+p <- ggplot(data = train, aes(x = Terminal, y = Outstate)) +
+  geom_point(color = rgb(.2, .4, .2, .5))
+p + geom_line(aes(x = Terminal, y = pred), data = pred.ss.df, 
+              color = rgb(.8, .1, .1, 1)) + theme_bw() + 
+  labs(title = paste(round(fit.ss$df), 'degrees of freedom from GCV')) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
