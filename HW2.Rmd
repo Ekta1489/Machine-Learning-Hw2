@@ -1,5 +1,5 @@
 ---
-title: "HW2"
+title: "Data Science 2, HW2"
 author: "Ekta Chaudhary"
 date: "20/03/2020"
 output: pdf_document
@@ -17,11 +17,8 @@ library(caret)
 library(ModelMetrics)
 library(glmnet)
 library(gam)
-library(boot)
 library(mgcv)
 library(splines)
-library(ggplot2)
-library(lasso2)
 library(pdp)
 library(earth)
 ```
@@ -81,22 +78,20 @@ p + geom_line(aes(x = Terminal, y = pred), data = pred.ss.df,
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-The function `smooth.spline()` can be used to fit smoothing spline models. Generalized cross-validation is used to select the degree of freedom. The degree of freedom obtained by generalized cross- validation is **4.468629**. 
+# The function `smooth.spline()`is used to fit smoothing spline models. Generalized cross-validation is used to select the degree of freedom.The degree of freedom obtained by generalized cross-validation is **4.468629**. 
 
 ```{r}
-par(mfrow = c(3,3)) # 3 x 3 grid
-all.dfs = rep(NA, 9)
-for (i in 2:20) {
+for (i in 2:15) {
   fit.ss = smooth.spline(data_1$Terminal, data_1$Outstate, df = i)
   
   pred.ss <- predict(fit.ss, x = Terminal.grid)
   
-  plot(data_1$Terminal, data_1$Outstate, cex = .5, col = "darkgrey")
+  plot(data_1$Terminal, data_1$Outstate, cex = .5, col = "red")
   title(paste("Degrees of freedom = ", round(fit.ss$df)),  outer = F)
   lines(Terminal.grid, pred.ss$y, lwd = 2, col = "blue")
 }
 ```
-I have picked a range of degrees of freedom from 2 to 20. As it can be seen from the plots, when the degree of freedom is 2, the model is linear and when the df increases the model gets wiggly.
+# I have picked a range of degrees of freedom from 2 to 15. As it can be seen from the plots, when the degree of freedom is 2, the model is linear and when the df increases the model gets wiggly.
 
 # c) Fit a generalized additive model (GAM) using all the predictors. Plot the results and explain your findings.
 
@@ -114,7 +109,7 @@ anova(gam.m1, gam.m2, gam.m3, test = "F")
 
 ```
 
-Looking at the p-values from the ANOVA test, Model 3 appears to be the best fitting model.
+# Looking at the p-values from the ANOVA test, Model 3 appears to be the best fitting model.
 
 ```{r}
 plot(gam.m2)
@@ -122,7 +117,7 @@ plot(gam.m3)
 vis.gam(gam.m3, view = c("Room.Board","Personal"),plot.type = "contour", color = "topo")
 ```
 
-(d) Fit a multivariate adaptive regression spline (MARS) model using all the predictors. Report the final model. Present the partial dependence plot of an arbitrary predictor in your final model.
+# (d) Fit a multivariate adaptive regression spline (MARS) model using all the predictors. Report the final model. Present the partial dependence plot of an arbitrary predictor in your final model.
 
 ```{r}
 ctrl1 <- trainControl(method = "cv", number = 10)
@@ -142,7 +137,7 @@ mars.fit$bestTune
 coef(mars.fit$finalModel) 
 ```
 
-Presenting the partial dependence plot of an arbitrary predictor in the final model.
+# Presenting the partial dependence plot of an arbitrary predictor in the final model.
 
 ```{r}
 p1 <- partial(mars.fit, pred.var = c("Room.Board"), grid.resolution = 10) %>% autoplot()
@@ -155,7 +150,7 @@ grid.arrange(p1, p2, ncol = 2)
 ```
 
 
-(e) Based on the above GAM and MARS models, predict the out-of-state tuition of Columbia University.
+# (e) Based on the above GAM and MARS models, predict the out-of-state tuition of Columbia University.
 
 ```{r}
 pred.gam <- predict(gam.m3, newdata = data_2)
@@ -163,4 +158,5 @@ pred.mars <- predict(mars.fit, newdata = data_2)
 pred.gam
 pred.mars
 ```
-The predicted out-of-state tuition of Columbia University, based on the GAM model is 19406.71 and based on the MARS model is 16698.41.
+
+# The predicted out-of-state tuition of Columbia University, based on the GAM model is 19406.71 and based on the MARS model is 16698.41.
