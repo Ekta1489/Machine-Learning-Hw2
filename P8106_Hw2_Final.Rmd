@@ -1,7 +1,7 @@
 ---
-title: "HW2"
+title: "P8106_HW2"
 author: "Ekta Chaudhary"
-date: "20/03/2020"
+date: "3/22/2020"
 output: pdf_document
 ---
 
@@ -142,12 +142,12 @@ mars.fit$bestTune
 coef(mars.fit$finalModel) 
 ```
 
-Presenting the partial dependence plot of an arbitrary predictor in the final model.
+Present the partial dependence plot of an arbitrary predictor in your final model.
 
 ```{r}
 p1 <- partial(mars.fit, pred.var = c("Room.Board"), grid.resolution = 10) %>% autoplot()
 
-p2 <- partial(mars.fit, pred.var = c("Room.Board", "Enroll"), grid.resolution = 10) %>%
+p2 <- partial(mars.fit, pred.var = c("Room.Board", "perc.alumni"), grid.resolution = 10) %>%
       plotPartial(levelplot = FALSE, zlab = "yhat", drape = TRUE, 
                   screen = list(z = 20, x = -60))
 
@@ -155,12 +155,10 @@ grid.arrange(p1, p2, ncol = 2)
 ```
 
 
-(e) Based on the above GAM and MARS models, predict the out-of-state tuition of Columbia University.
-
 ```{r}
-pred.gam <- predict(gam.m3, newdata = data_2)
+pred.gam <- predict(gam.m2, newdata = data_2)
 pred.mars <- predict(mars.fit, newdata = data_2)
 pred.gam
 pred.mars
 ```
-The predicted out-of-state tuition of Columbia University, based on the GAM model is 19406.71 and based on the MARS model is 16698.41.
+
